@@ -2,7 +2,7 @@
   import { game } from './state.svelte';
   import { getNodeType } from './nodeTypes';
   import { RESOURCE_TYPES } from './resources';
-  import EmojiIcon from './EmojiIcon.svelte';
+  import NodeIcon from './NodeIcon.svelte';
 
   let collapsed = $state(false);
 
@@ -32,7 +32,7 @@
       {#if selectedType}
         <div class="node-summary">
           <div class="emoji node-circle-fill" style="--node-color:{selectedType.color}">
-            <EmojiIcon emoji={selectedType.emoji} />
+            <NodeIcon icon={selectedType.icon} />
           </div>
           <div class="name">{selectedType.label}</div>
         </div>

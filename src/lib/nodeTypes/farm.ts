@@ -1,4 +1,5 @@
 import type { GraphNode, NodeTypeDef } from '../types';
+import farmImage from '../../../assets/farm.png';
 
 const SUN_CAPACITY = 10;
 const FOOD_CAPACITY = 10;
@@ -24,7 +25,7 @@ function process(node: GraphNode) {
 
 export const farmType: NodeTypeDef = {
   id: 'farm',
-  emoji: '🛖',
+  icon: { image: farmImage },
   label: 'Farm',
   description: 'Collects sun on its own, then converts sun and labor into food.',
   color: '#65a30d',

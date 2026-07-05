@@ -4,7 +4,7 @@
   import type { GraphNode } from './types';
   import { getNodeType } from './nodeTypes';
   import { RESOURCE_TYPES } from './resources';
-  import EmojiIcon from './EmojiIcon.svelte';
+  import NodeIcon from './NodeIcon.svelte';
 
   let { node }: { node: GraphNode } = $props();
 
@@ -67,7 +67,7 @@
   role="button"
   tabindex="0"
 >
-  <div class="emoji"><EmojiIcon emoji={typeDef?.emoji ?? ''} /></div>
+  <div class="emoji"><NodeIcon icon={typeDef?.icon ?? ''} /></div>
 </div>
 
 {#if inventoryEntries.length > 0}

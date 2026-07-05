@@ -26,7 +26,7 @@ function process(node: GraphNode) {
 
 export const forestType: NodeTypeDef = {
   id: 'forest',
-  emoji: '🌲',
+  icon: '🌲',
   label: 'Forest',
   description: 'Grows trees on its own, then converts trees and labor into wood.',
   color: '#15803d',

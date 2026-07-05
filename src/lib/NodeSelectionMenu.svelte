@@ -1,7 +1,7 @@
 <script lang="ts">
   import { NODE_TYPES, getNodeType } from './nodeTypes';
   import { game } from './state.svelte';
-  import EmojiIcon from './EmojiIcon.svelte';
+  import NodeIcon from './NodeIcon.svelte';
 
   let collapsed = $state(false);
 
@@ -66,7 +66,7 @@
           role="button"
           tabindex="0"
         >
-          <div class="emoji node-circle-fill"><EmojiIcon emoji={t.emoji} /></div>
+          <div class="emoji node-circle-fill"><NodeIcon icon={t.icon} /></div>
           <span class="label">{t.label}</span>
         </div>
       {/each}
@@ -80,7 +80,7 @@
     class:valid={spawning.valid}
     style="left:{spawning.x}px; top:{spawning.y}px; --node-color:{spawningType.color}"
   >
-    <EmojiIcon emoji={spawningType.emoji} />
+    <NodeIcon icon={spawningType.icon} />
   </div>
 {/if}
 

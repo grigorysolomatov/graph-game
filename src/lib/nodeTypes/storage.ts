@@ -15,7 +15,7 @@ function canAccept(node: GraphNode, resourceId: string, amount: number): boolean
 
 export const storageType: NodeTypeDef = {
   id: 'storage',
-  emoji: '📦',
+  icon: '📦',
   label: 'Storage',
   description: 'Holds up to 100 units of a single resource type. No conversion.',
   color: '#57534e',

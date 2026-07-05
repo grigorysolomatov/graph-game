@@ -1,7 +1,10 @@
+/** One visual layer of a node's icon: either an emoji character, or an image (e.g. an imported asset URL). */
+export type IconLayer = string | { image: string };
+
 export interface NodeTypeDef {
   id: string;
-  /** A single emoji, or a stack of layered emoji (base first, topmost last) rendered centered on one another. */
-  emoji: string | string[];
+  /** A single icon layer, or a stack of layers (base first, topmost last) rendered centered on one another. Each layer is independently an emoji or an image. */
+  icon: IconLayer | IconLayer[];
   label: string;
   description: string;
   color: string;

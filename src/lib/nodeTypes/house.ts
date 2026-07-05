@@ -11,7 +11,7 @@ function process(node: GraphNode) {
 
 export const houseType: NodeTypeDef = {
   id: 'house',
-  emoji: '🏠',
+  icon: '🏠',
   label: 'House',
   description: 'Generates labor over time, up to a cap of 10.',
   color: '#a16207',
