@@ -1,0 +1,60 @@
+:root {
+  --bg: #14151a;
+  --bg-map: #191a20;
+  --bg-map-dot: #24262e;
+  --panel: #1e2027;
+  --panel-2: #262933;
+  --border: #34384a;
+  --text: #e6e7eb;
+  --text-dim: #9aa0ac;
+  --accent: #7dd3fc;
+  --accent-2: #a78bfa;
+  --danger: #f87171;
+  --shadow: rgba(0, 0, 0, 0.45) 0 8px 24px -4px;
+
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  color-scheme: dark;
+  font: 16px/1.4 var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--bg);
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* Shared circular fill for anything representing a node kind by its `--node-color`:
+   the placed node itself, its node-selection-menu tile, and its drag ghost. */
+.node-circle-fill {
+  background: radial-gradient(
+    circle at 35% 30%,
+    color-mix(in srgb, var(--node-color) 60%, white 15%),
+    color-mix(in srgb, var(--node-color) 65%, black 35%)
+  );
+}
