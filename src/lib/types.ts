@@ -8,10 +8,18 @@ export interface NodeTypeDef {
   initialInventory?: Record<string, number>;
   /** Max units of a given resource this node kind can hold; absent/unspecified resourceId means it cannot hold that resource at all. */
   capacities?: Record<string, number>;
+  /** Overrides the Node Info panel's default per-resource `capacities` listing with a single line, for nodes whose capacity story doesn't read well as one entry per resource (e.g. Storage's "100 of any single type"). */
+  capacityNote?: string;
   /** Overrides the default `count <= capacities[resourceId]` acceptance check entirely, for rules that depend on the rest of the inventory. */
   canAccept?: (node: GraphNode, resourceId: string, amount: number) => boolean;
   /** Runs once per simulation tick, transforming this node's inventory in place. Also receives every node on the map, for rules that depend on global state. */
   process?: (node: GraphNode, allNodes: GraphNode[]) => void;
+  /** Resources this node generates without consuming any other resource (e.g. House's labor growth, Farm's sun collection) — free-form text, one line each, shown in the Node Info panel's Production section. Omit if this node type doesn't generate anything from nothing. */
+  production?: string[];
+  /** Named label/value facts shown in the Node Info panel's Parameters section (e.g. Forest's growth rate) — for nodes whose behavior is better described as a small table than prose. Values are free-form strings so a parameter can restate a number that also appears elsewhere (e.g. capacity) without needing to stay wired together. */
+  parameters?: { label: string; value: string }[];
+  /** Input(s) -> output(s) conversions this node performs, rendered as an emoji equation (e.g. ☀️ + 💪 → 🥕) in the Node Info panel's Conversion section. Omit if this node type doesn't convert resources. */
+  conversions?: { inputs: string[]; outputs: string[] }[];
 }
 
 export interface GraphNode {

@@ -33,4 +33,9 @@ export const forestType: NodeTypeDef = {
   initialInventory: { tree: TREE_CAPACITY },
   capacities: { ...UNLIMITED_CAPACITIES, tree: TREE_CAPACITY, labor: LABOR_CAPACITY },
   process,
+  parameters: [
+    { label: 'Growth rate', value: `${GROWTH_RATE.toFixed(3)}/tick (fastest at half capacity, where it adds 1/tick); never drops below ${TREE_MIN}` },
+    { label: 'Capacity', value: `${TREE_CAPACITY}` },
+  ],
+  conversions: [{ inputs: ['tree', 'labor'], outputs: ['wood'] }],
 };

@@ -17,4 +17,5 @@ export const houseType: NodeTypeDef = {
   color: '#a16207',
   capacities: { labor: LABOR_CAPACITY },
   process,
+  production: ['1 💪 per tick.'],
 };

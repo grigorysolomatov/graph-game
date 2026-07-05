@@ -1,12 +1,28 @@
 <script lang="ts">
   import { game } from './state.svelte';
   import { getNodeType } from './nodeTypes';
+  import { RESOURCE_TYPES } from './resources';
   import EmojiIcon from './EmojiIcon.svelte';
 
   let collapsed = $state(false);
 
   const selectedNode = $derived(game.nodes.find((n) => n.id === game.selectedNodeId));
   const selectedType = $derived(selectedNode ? getNodeType(selectedNode) : undefined);
+
+  const initialInventoryEntries = $derived(
+    Object.entries(selectedType?.initialInventory ?? {}).filter(
+      ([resourceId, amount]) => amount !== selectedType?.capacities?.[resourceId],
+    ),
+  );
+  const capacityEntries = $derived(
+    Object.entries(selectedType?.capacities ?? {}).filter(
+      ([, max]) => Number.isFinite(max) && max > 0,
+    ),
+  );
+
+  function resourceEmoji(resourceId: string): string {
+    return RESOURCE_TYPES.find((r) => r.id === resourceId)?.emoji ?? resourceId;
+  }
 </script>
 
 <div class="info-panel" class:collapsed>
@@ -21,6 +37,55 @@
           <div class="name">{selectedType.label}</div>
         </div>
         <p class="description">{selectedType.description}</p>
+        {#if initialInventoryEntries.length}
+          <div class="section-title">Starts with</div>
+          <ul class="stat-list">
+            {#each initialInventoryEntries as [resourceId, amount] (resourceId)}
+              <li>{resourceEmoji(resourceId)} {amount}</li>
+            {/each}
+          </ul>
+        {/if}
+        {#if selectedType.production?.length}
+          <div class="section-title">Production</div>
+          <ul class="stat-list">
+            {#each selectedType.production as line, i (i)}
+              <li>{line}</li>
+            {/each}
+          </ul>
+        {/if}
+        {#if selectedType.parameters?.length}
+          <div class="section-title">Parameters</div>
+          <ul class="stat-list">
+            {#each selectedType.parameters as param, i (i)}
+              <li>{param.label}: {param.value}</li>
+            {/each}
+          </ul>
+        {/if}
+        {#if selectedType.conversions?.length}
+          <div class="section-title">Conversion</div>
+          <ul class="stat-list">
+            {#each selectedType.conversions as conversion, i (i)}
+              <li>
+                {conversion.inputs.map(resourceEmoji).join(' + ')}
+                →
+                {conversion.outputs.map(resourceEmoji).join(' + ')}
+              </li>
+            {/each}
+          </ul>
+        {/if}
+        {#if selectedType.capacityNote}
+          <div class="section-title">Capacity</div>
+          <ul class="stat-list">
+            <li>{selectedType.capacityNote}</li>
+          </ul>
+        {:else if capacityEntries.length}
+          <div class="section-title">Capacity</div>
+          <ul class="stat-list">
+            {#each capacityEntries as [resourceId, max] (resourceId)}
+              <li>{resourceEmoji(resourceId)} {max}</li>
+            {/each}
+          </ul>
+        {/if}
       {:else}
         <p class="placeholder">Click a node to see its info.</p>
       {/if}
@@ -62,7 +127,7 @@
     border-radius: 0 10px 10px 0;
     padding: 12px;
     box-shadow: var(--shadow);
-    width: 200px;
+    width: 240px;
   }
   .title {
     font-size: 12px;
@@ -97,6 +162,24 @@
     font-size: 13px;
     line-height: 1.4;
     color: var(--text-dim);
+  }
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .stat-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--text);
   }
   .placeholder {
     margin: 0;

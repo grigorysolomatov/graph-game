@@ -30,4 +30,6 @@ export const farmType: NodeTypeDef = {
   color: '#65a30d',
   capacities: { sun: SUN_CAPACITY, labor: LABOR_CAPACITY, food: FOOD_CAPACITY },
   process,
+  production: ['1 ☀️ per tick.'],
+  conversions: [{ inputs: ['sun', 'labor'], outputs: ['food'] }],
 };

@@ -23,4 +23,5 @@ export const storageType: NodeTypeDef = {
     RESOURCE_TYPES.filter((r) => r.id !== 'labor').map((r) => [r.id, STORAGE_CAPACITY]),
   ),
   canAccept,
+  capacityNote: '100 of any single resource type.',
 };
