@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { game } from './state.svelte';
-  import { getEdgeGeometry, EDGE_OFFSET } from './types';
-  import type { GraphEdge } from './types';
+  import { game } from '../game/state.svelte';
+  import { getEdgeGeometry, EDGE_OFFSET } from '../types';
+  import type { GraphEdge } from '../types';
 
   let { edge }: { edge: GraphEdge } = $props();
 
-  const source = $derived(game.nodes.find((n) => n.id === edge.sourceId));
-  const target = $derived(game.nodes.find((n) => n.id === edge.targetId));
+  const source = $derived(game.getNode(edge.sourceId));
+  const target = $derived(game.getNode(edge.targetId));
   const selected = $derived(game.selectedEdgeId === edge.id);
   const hasReverse = $derived(game.hasReverseEdge(edge.sourceId, edge.targetId));
 
@@ -23,6 +23,7 @@
 
 {#if geometry}
   <g class="edge" class:selected>
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <line
       x1={geometry.x1}
       y1={geometry.y1}

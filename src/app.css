@@ -4,6 +4,7 @@
   --bg-map-dot: #24262e;
   --panel: #1e2027;
   --panel-2: #262933;
+  --node-bg: #4b4f59;
   --border: #34384a;
   --text: #e6e7eb;
   --text-dim: #9aa0ac;
@@ -49,12 +50,24 @@ button {
   color: inherit;
 }
 
-/* Shared circular fill for anything representing a node kind by its `--node-color`:
-   the placed node itself, its node-selection-menu tile, and its drag ghost. */
+/* Shared chrome for every floating HUD region (top bar, palette, inspector). Regions add their own
+   padding/radius overrides on top; this is just the common surface (background, border, shadow). */
+.hud-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+/* Shared circular fill for anything representing a placed node: the node itself,
+   its node-selection-menu tile, and its drag ghost. One dark gray fill for every
+   node kind (distinct from the map's near-black background) with a per-type
+   `--node-color` border, so identity comes from the ring rather than the fill. */
 .node-circle-fill {
   background: radial-gradient(
     circle at 35% 30%,
-    color-mix(in srgb, var(--node-color) 60%, white 15%),
-    color-mix(in srgb, var(--node-color) 65%, black 35%)
+    color-mix(in srgb, var(--node-bg) 60%, white 15%),
+    color-mix(in srgb, var(--node-bg) 65%, black 35%)
   );
+  border: 2px solid var(--node-color);
 }

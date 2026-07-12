@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { game } from './state.svelte';
-  import { NODE_RADIUS } from './types';
-  import { RESOURCE_TYPES } from './resources';
+  import { game } from '../game/state.svelte';
+  import { camera } from '../game/camera.svelte';
+  import { NODE_RADIUS } from '../types';
+  import { RESOURCE_TYPES } from '../resources';
   import NodeView from './NodeView.svelte';
   import EdgeView from './EdgeView.svelte';
   import TravelerView from './TravelerView.svelte';
@@ -50,7 +51,7 @@
   function onBackgroundPointerMove(e: PointerEvent) {
     if (game.isConnecting) {
       const p = mapLocalPoint(e);
-      pointer = game.screenToWorld(p.x, p.y);
+      pointer = camera.screenToWorld(p.x, p.y);
     }
 
     if (!activePointers.has(e.pointerId)) return;
@@ -67,12 +68,12 @@
       const newDist = distance(after);
 
       const ratio = oldDist > 4 ? newDist / oldDist : 1;
-      game.zoomToward(oldMid, newMid, game.camera.zoom * ratio);
+      camera.zoomToward(oldMid, newMid, camera.zoom * ratio);
     } else {
       const prev = activePointers.get(e.pointerId)!;
       const next = mapLocalPoint(e);
       activePointers.set(e.pointerId, next);
-      game.panBy(next.x - prev.x, next.y - prev.y);
+      camera.panBy(next.x - prev.x, next.y - prev.y);
       if (gestureStart && Math.hypot(next.x - gestureStart.x, next.y - gestureStart.y) > 4) {
         gestureMoved = true;
       }
@@ -83,9 +84,7 @@
     if (!activePointers.has(e.pointerId)) return;
     activePointers.delete(e.pointerId);
     if (activePointers.size === 0) {
-      if (!gestureMoved) {
-        game.clearSelection();
-      }
+      if (!gestureMoved) game.clearSelection();
       gestureStart = null;
     }
   }
@@ -94,41 +93,39 @@
     e.preventDefault();
     const p = mapLocalPoint(e);
     const zoomFactor = Math.exp(-e.deltaY * 0.001);
-    game.zoomAt(p, game.camera.zoom * zoomFactor);
+    camera.zoomAt(p, camera.zoom * zoomFactor);
   }
 
   let pointer = $state({ x: 0, y: 0 });
 
-  const selectedNode = $derived(game.nodes.find((n) => n.id === game.selectedNodeId));
+  const selectedNode = $derived(game.getNode(game.selectedNodeId));
   const selectedNodeScreen = $derived(
-    selectedNode ? game.worldToScreen(selectedNode.x, selectedNode.y - NODE_RADIUS) : undefined,
+    selectedNode ? camera.worldToScreen(selectedNode.x, selectedNode.y - NODE_RADIUS) : undefined,
   );
-  const selectedEdge = $derived(game.edges.find((e) => e.id === game.selectedEdgeId));
+  const selectedEdge = $derived(game.getEdge(game.selectedEdgeId));
   const selectedEdgeMidScreen = $derived.by(() => {
     if (!selectedEdge) return undefined;
-    const s = game.nodes.find((n) => n.id === selectedEdge.sourceId);
-    const t = game.nodes.find((n) => n.id === selectedEdge.targetId);
+    const s = game.getNode(selectedEdge.sourceId);
+    const t = game.getNode(selectedEdge.targetId);
     if (!s || !t) return undefined;
-    return game.worldToScreen((s.x + t.x) / 2, (s.y + t.y) / 2);
+    return camera.worldToScreen((s.x + t.x) / 2, (s.y + t.y) / 2);
   });
-  const connectingFromNode = $derived(game.nodes.find((n) => n.id === game.connectingFromId));
+  const connectingFromNode = $derived(game.getNode(game.connectingFromId));
 </script>
 
 <div
   class="map"
   id="game-map"
   bind:this={mapEl}
-  style="background-position: {game.camera.x}px {game.camera.y}px; background-size: {GRID_SIZE * game.camera.zoom}px {GRID_SIZE * game.camera.zoom}px;"
+  style="background-position: {camera.x}px {camera.y}px; background-size: {GRID_SIZE * camera.zoom}px {GRID_SIZE * camera.zoom}px;"
   onpointerdown={onBackgroundPointerDown}
   onpointermove={onBackgroundPointerMove}
   onpointerup={onBackgroundPointerUp}
   onpointercancel={onBackgroundPointerUp}
   onwheel={onWheel}
+  role="application"
 >
-  <div
-    class="world"
-    style="transform: translate({game.camera.x}px, {game.camera.y}px) scale({game.camera.zoom});"
-  >
+  <div class="world" style="transform: translate({camera.x}px, {camera.y}px) scale({camera.zoom});">
     <svg class="edges-layer">
       <defs>
         <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">

@@ -11,6 +11,7 @@
   let { x, y, items, children }: { x: number; y: number; items: MenuItem[]; children?: Snippet } = $props();
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="context-menu" style="left:{x}px; top:{y}px;" onpointerdown={(e) => e.stopPropagation()}>
   {#if children}
     <div class="extra">{@render children()}</div>

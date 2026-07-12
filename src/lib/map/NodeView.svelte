@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { game } from './state.svelte';
-  import { NODE_RADIUS } from './types';
-  import type { GraphNode } from './types';
-  import { getNodeType } from './nodeTypes';
-  import { RESOURCE_TYPES } from './resources';
-  import NodeIcon from './NodeIcon.svelte';
+  import { game } from '../game/state.svelte';
+  import { camera } from '../game/camera.svelte';
+  import { NODE_RADIUS } from '../types';
+  import type { GraphNode } from '../types';
+  import { getNodeType } from '../nodeTypes';
+  import { getResource } from '../resources';
+  import NodeIcon from '../NodeIcon.svelte';
 
   let { node }: { node: GraphNode } = $props();
 
@@ -39,8 +40,8 @@
     if (moved) {
       // Screen-space drag distance must be converted to world units by the current zoom,
       // so the node tracks the pointer 1:1 on screen regardless of zoom level.
-      const dx = screenDx / game.camera.zoom;
-      const dy = screenDy / game.camera.zoom;
+      const dx = screenDx / camera.zoom;
+      const dy = screenDy / camera.zoom;
       game.moveNode(node.id, startNodeX + dx, startNodeY + dy);
     }
   }
@@ -73,7 +74,7 @@
 {#if inventoryEntries.length > 0}
   <div class="inventory" style="left:{node.x}px; top:{node.y + NODE_RADIUS + 6}px;">
     {#each inventoryEntries as [resourceId, count] (resourceId)}
-      {@const resourceDef = RESOURCE_TYPES.find((r) => r.id === resourceId)}
+      {@const resourceDef = getResource(resourceId)}
       {#if resourceDef}
         <span class="inv-badge">{Math.trunc(count)}{resourceDef.emoji}</span>
       {/if}
@@ -85,7 +86,6 @@
   .node {
     position: absolute;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.15);
     display: flex;
     align-items: center;
     justify-content: center;

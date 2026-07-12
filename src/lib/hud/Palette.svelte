@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { NODE_TYPES, getNodeType } from './nodeTypes';
-  import { game } from './state.svelte';
-  import NodeIcon from './NodeIcon.svelte';
-
-  let collapsed = $state(false);
+  import { NODE_TYPES, getNodeType } from '../nodeTypes';
+  import { game } from '../game/state.svelte';
+  import { camera } from '../game/camera.svelte';
+  import NodeIcon from '../NodeIcon.svelte';
 
   interface Spawning {
     typeId: string;
@@ -14,10 +13,14 @@
 
   let spawning = $state<Spawning | null>(null);
 
+  function mapRect() {
+    return document.getElementById('game-map')?.getBoundingClientRect();
+  }
+
+  /** Whether the pointer is over the map (a valid drop target for a new node). */
   function computeValid(clientX: number, clientY: number): boolean {
-    const mapEl = document.getElementById('game-map');
-    if (!mapEl) return false;
-    const rect = mapEl.getBoundingClientRect();
+    const rect = mapRect();
+    if (!rect) return false;
     return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
   }
 
@@ -36,10 +39,9 @@
 
   function onItemPointerUp(e: PointerEvent) {
     if (!spawning) return;
-    const mapEl = document.getElementById('game-map');
-    if (mapEl && spawning.valid) {
-      const rect = mapEl.getBoundingClientRect();
-      const world = game.screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
+    const rect = mapRect();
+    if (rect && spawning.valid) {
+      const world = camera.screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
       game.addNode(spawning.typeId, world.x, world.y);
     }
     spawning = null;
@@ -48,30 +50,25 @@
   const spawningType = $derived(spawning ? getNodeType(spawning.typeId) : undefined);
 </script>
 
-<div class="node-menu" class:collapsed>
-  <button type="button" class="toggle" onclick={() => (collapsed = !collapsed)} aria-label="Toggle node menu">
-    <span class="chevron">{collapsed ? '▲' : '▼'}</span>
-    <span class="toggle-label">Nodes</span>
-  </button>
-  {#if !collapsed}
-    <div class="items">
-      {#each NODE_TYPES as t (t.id)}
-        <div
-          class="item"
-          style="--node-color:{t.color}"
-          onpointerdown={(e) => onItemPointerDown(e, t.id)}
-          onpointermove={onItemPointerMove}
-          onpointerup={onItemPointerUp}
-          onpointercancel={onItemPointerUp}
-          role="button"
-          tabindex="0"
-        >
-          <div class="emoji node-circle-fill"><NodeIcon icon={t.icon} /></div>
-          <span class="label">{t.label}</span>
-        </div>
-      {/each}
-    </div>
-  {/if}
+<div class="palette hud-panel">
+  <div class="items">
+    {#each NODE_TYPES as t (t.id)}
+      <div
+        class="item"
+        style="--node-color:{t.color}"
+        onpointerdown={(e) => onItemPointerDown(e, t.id)}
+        onpointermove={onItemPointerMove}
+        onpointerup={onItemPointerUp}
+        onpointercancel={onItemPointerUp}
+        role="button"
+        tabindex="0"
+        title="Drag onto the map to place a {t.label}"
+      >
+        <div class="emoji node-circle-fill"><NodeIcon icon={t.icon} /></div>
+        <span class="label">{t.label}</span>
+      </div>
+    {/each}
+  </div>
 </div>
 
 {#if spawning && spawningType}
@@ -85,44 +82,17 @@
 {/if}
 
 <style>
-  .node-menu {
-    position: fixed;
-    left: 50%;
-    bottom: 0;
-    transform: translateX(-50%);
-    z-index: 20;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: var(--panel);
-    border: 1px solid var(--border);
+  .palette {
+    border-radius: 12px 12px 0 0;
     border-bottom: none;
-    border-radius: 10px 10px 0 0;
-    box-shadow: var(--shadow);
-    max-width: calc(100% - 32px);
-  }
-  .toggle {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: transparent;
-    border: none;
-    color: var(--text-dim);
-    padding: 6px 16px;
-    cursor: pointer;
-    font-size: 13px;
-    justify-content: center;
-  }
-  .toggle:hover {
-    color: var(--text);
-  }
-  .chevron {
-    font-size: 10px;
+    max-width: 100%;
   }
   .items {
     display: flex;
-    gap: 14px;
-    padding: 4px 16px 16px;
+    gap: 12px;
+    /* Pad past the home-indicator / rounded-corner safe areas on phones. */
+    padding: 10px calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom))
+      calc(16px + env(safe-area-inset-left));
     overflow-x: auto;
     max-width: 100%;
   }

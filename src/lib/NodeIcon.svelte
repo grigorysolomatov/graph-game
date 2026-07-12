@@ -34,9 +34,12 @@
     pointer-events: none;
   }
   .layer img {
-    /* Sized in em (not %) so it shrinks along with .layer.top's reduced font-size. */
-    width: 1em;
-    height: 1em;
+    /* A fixed square box + object-fit: contain means the longer of an image's two
+       dimensions always ends up at 1.4em, regardless of its aspect ratio — so two
+       differently-shaped images (e.g. Farm's wide layout vs. Forest's tall one)
+       still read as the same size instead of one looking bigger than the other. */
+    width: 1.4em;
+    height: 1.4em;
     object-fit: contain;
   }
   /* The topmost layer of a composite icon renders a little smaller, so it reads as

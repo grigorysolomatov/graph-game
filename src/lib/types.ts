@@ -7,6 +7,7 @@ export interface NodeTypeDef {
   icon: IconLayer | IconLayer[];
   label: string;
   description: string;
+  /** Border color for the node's circle, thematically matching the type (e.g. green for Forest). The circle's fill is a shared neutral gray (`--node-bg` in app.css) across every type — only the border is per-type. */
   color: string;
   initialInventory?: Record<string, number>;
   /** Max units of a given resource this node kind can hold; absent/unspecified resourceId means it cannot hold that resource at all. */

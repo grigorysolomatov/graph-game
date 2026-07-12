@@ -1,10 +1,8 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import GameMap from './lib/GameMap.svelte';
-  import NodeSelectionMenu from './lib/NodeSelectionMenu.svelte';
-  import TimeControlMenu from './lib/TimeControlMenu.svelte';
-  import NodeInfoPanel from './lib/NodeInfoPanel.svelte';
-  import { game } from './lib/state.svelte';
+  import GameMap from './lib/map/GameMap.svelte';
+  import Hud from './lib/hud/Hud.svelte';
+  import { game } from './lib/game/state.svelte';
 
   let rafId: number;
   let lastTime = 0;
@@ -43,11 +41,8 @@
 </script>
 
 <div class="game-root">
-  <div class="time-counter">{game.simTime.toFixed(1)}s</div>
   <GameMap />
-  <TimeControlMenu />
-  <NodeInfoPanel />
-  <NodeSelectionMenu />
+  <Hud />
 </div>
 
 <style>
@@ -57,19 +52,5 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-  }
-  .time-counter {
-    position: fixed;
-    top: 12px;
-    left: 12px;
-    z-index: 30;
-    font-variant-numeric: tabular-nums;
-    font-size: 15px;
-    padding: 6px 10px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text-dim);
-    box-shadow: var(--shadow);
   }
 </style>

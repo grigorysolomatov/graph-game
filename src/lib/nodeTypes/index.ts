@@ -16,10 +16,12 @@ export const NODE_TYPES: NodeTypeDef[] = [
   storageType,
 ];
 
+const NODE_TYPE_BY_ID = new Map(NODE_TYPES.map((t) => [t.id, t]));
+
 /** Looks up a node kind's `NodeTypeDef`, either from a placed node or directly from a type id (e.g. while spawning one, before it exists as a `GraphNode`). */
 export function getNodeType(nodeOrTypeId: GraphNode | string): NodeTypeDef | undefined {
   const typeId = typeof nodeOrTypeId === 'string' ? nodeOrTypeId : nodeOrTypeId.typeId;
-  return NODE_TYPES.find((t) => t.id === typeId);
+  return NODE_TYPE_BY_ID.get(typeId);
 }
 
 export function getNodeCapacity(node: GraphNode, resourceId: string): number {

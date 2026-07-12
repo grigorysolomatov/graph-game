@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { game } from './state.svelte';
-  import { getEdgeGeometry, EDGE_OFFSET } from './types';
-  import type { ResourceTraveler } from './types';
-  import { RESOURCE_TYPES } from './resources';
+  import { game } from '../game/state.svelte';
+  import { getEdgeGeometry, EDGE_OFFSET } from '../types';
+  import type { ResourceTraveler } from '../types';
+  import { getResource } from '../resources';
 
   let { traveler }: { traveler: ResourceTraveler } = $props();
 
-  const edge = $derived(game.edges.find((e) => e.id === traveler.edgeId));
-  const source = $derived(edge ? game.nodes.find((n) => n.id === edge.sourceId) : undefined);
-  const target = $derived(edge ? game.nodes.find((n) => n.id === edge.targetId) : undefined);
-  const resourceDef = $derived(RESOURCE_TYPES.find((r) => r.id === traveler.resourceId));
+  const edge = $derived(game.getEdge(traveler.edgeId));
+  const source = $derived(game.getNode(edge?.sourceId));
+  const target = $derived(game.getNode(edge?.targetId));
+  const resourceDef = $derived(getResource(traveler.resourceId));
   const hasReverse = $derived(edge ? game.hasReverseEdge(edge.sourceId, edge.targetId) : false);
 
   const position = $derived.by(() => {
