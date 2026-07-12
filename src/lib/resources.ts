@@ -14,6 +14,7 @@ export const RESOURCE_TYPES: ResourceTypeDef[] = [
   { id: 'labor', emoji: '💪', label: 'Labor', storable: false },
   { id: 'tree', emoji: '🌳', label: 'Tree', transportable: false },
   { id: 'wood', emoji: '🪵', label: 'Wood' },
+  { id: 'fish', emoji: '🐟', label: 'Fish', transportable: false },
 ];
 
 const RESOURCE_BY_ID = new Map(RESOURCE_TYPES.map((r) => [r.id, r]));

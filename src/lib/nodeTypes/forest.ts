@@ -1,30 +1,23 @@
 import type { GraphNode, NodeTypeDef } from '../types';
 import { UNLIMITED_CAPACITIES } from '../resources';
+import { growLogistic } from './logistic';
 import forestImage from '../../../assets/forest.png';
 
-const TREE_CAPACITY = 200;
-const TREE_MIN = 0.5;
-const LABOR_CAPACITY = 200;
-const WOOD_CAPACITY = 200;
-// Logistic growth dN/dt = r*N*(1-N/K). At N = K/2 = 100 this must equal 1/tick,
-// so r*100*(1-100/200) = r*50 = 1 => r = 1/50.
-const GROWTH_RATE = 1 / 50;
+const CAPACITY = 1000;
+const MAX_RATE = 10; // peak tree growth per tick, at half capacity
 
 function process(node: GraphNode) {
-  const tree = node.inventory.tree ?? 0;
-  const growth = GROWTH_RATE * tree * (1 - tree / TREE_CAPACITY);
-  node.inventory.tree = Math.min(TREE_CAPACITY, Math.max(TREE_MIN, tree + growth));
+  node.inventory.tree = growLogistic(node.inventory.tree ?? 0, { capacity: CAPACITY, maxRate: MAX_RATE });
 
-  const currentTree = node.inventory.tree;
+  // Convert as many tree+labor pairs into wood as the scarcer of the two allows (bulk, not rate-limited).
+  // Draining tree to 0 is fine: growLogistic reseeds it next tick, so the forest always recovers.
+  const tree = node.inventory.tree;
   const labor = node.inventory.labor ?? 0;
-  const wood = node.inventory.wood ?? 0;
-  const availableTree = Math.max(0, currentTree - TREE_MIN);
-  const room = Math.max(0, WOOD_CAPACITY - wood);
-  const converted = Math.min(availableTree, labor, room);
+  const converted = Math.min(tree, labor);
   if (converted > 0) {
-    node.inventory.tree = currentTree - converted;
+    node.inventory.tree = tree - converted;
     node.inventory.labor = labor - converted;
-    node.inventory.wood = wood + converted;
+    node.inventory.wood = (node.inventory.wood ?? 0) + converted;
   }
 }
 
@@ -34,12 +27,12 @@ export const forestType: NodeTypeDef = {
   label: 'Forest',
   description: 'Grows trees on its own, then converts trees and labor into wood.',
   color: '#15803d',
-  initialInventory: { tree: TREE_CAPACITY },
-  capacities: { ...UNLIMITED_CAPACITIES, tree: TREE_CAPACITY, labor: LABOR_CAPACITY, wood: WOOD_CAPACITY },
+  initialInventory: { tree: CAPACITY },
+  capacities: { ...UNLIMITED_CAPACITIES, tree: CAPACITY },
   process,
   parameters: [
-    { label: 'Growth rate', value: `${GROWTH_RATE.toFixed(3)}/tick (logistic)` },
-    { label: 'Capacity', value: `${TREE_CAPACITY}` },
+    { label: 'Carrying capacity', value: `${CAPACITY}` },
+    { label: 'Max growth', value: `${MAX_RATE}/tick (at half capacity)` },
   ],
   conversions: [{ inputs: ['tree', 'labor'], outputs: ['wood'] }],
 };

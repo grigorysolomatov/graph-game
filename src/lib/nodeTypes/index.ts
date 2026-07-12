@@ -2,6 +2,7 @@ import type { GraphNode, NodeTypeDef } from '../types';
 import { farmType } from './farm';
 import { forestType } from './forest';
 import { houseType } from './house';
+import { lakeType } from './lake';
 import { storageType } from './storage';
 
 /**
@@ -13,6 +14,7 @@ export const NODE_TYPES: NodeTypeDef[] = [
   houseType,
   farmType,
   forestType,
+  lakeType,
   storageType,
 ];
 
