@@ -13,45 +13,82 @@
 
   let spawning = $state<Spawning | null>(null);
 
+  // A press that hasn't yet been classified as "pull a node onto the map" vs. "scroll the palette".
+  // We defer capturing the pointer until we know which, so a horizontal swipe can scroll natively.
+  let pending: { typeId: string; pointerId: number; x: number; y: number } | null = null;
+  const DRAG_THRESHOLD = 6;
+
   function mapRect() {
     return document.getElementById('game-map')?.getBoundingClientRect();
   }
 
   /** Whether the pointer is over the map (a valid drop target for a new node). */
   function computeValid(clientX: number, clientY: number): boolean {
-    const rect = mapRect();
-    if (!rect) return false;
-    return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+    const r = mapRect();
+    if (!r) return false;
+    return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
   }
 
   function onItemPointerDown(e: PointerEvent, typeId: string) {
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    spawning = { typeId, x: e.clientX, y: e.clientY, valid: computeValid(e.clientX, e.clientY) };
-    e.preventDefault();
+    pending = { typeId, pointerId: e.pointerId, x: e.clientX, y: e.clientY };
+    // Don't capture or preventDefault on touch yet: a horizontal swipe should scroll the palette
+    // (touch-action: pan-x on the tiles hands that gesture to the browser). Only a mouse press needs
+    // its native text-selection / image-drag suppressed up front.
+    if (e.pointerType === 'mouse') e.preventDefault();
   }
 
   function onItemPointerMove(e: PointerEvent) {
-    if (!spawning) return;
-    spawning.x = e.clientX;
-    spawning.y = e.clientY;
-    spawning.valid = computeValid(e.clientX, e.clientY);
+    if (spawning) {
+      spawning.x = e.clientX;
+      spawning.y = e.clientY;
+      spawning.valid = computeValid(e.clientX, e.clientY);
+      return;
+    }
+    if (!pending || e.pointerId !== pending.pointerId) return;
+    const dx = e.clientX - pending.x;
+    const dy = e.clientY - pending.y;
+    if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+    if (Math.abs(dy) >= Math.abs(dx)) {
+      // Vertical-dominant intent → pull a node out: capture the pointer and start dragging the ghost.
+      (e.currentTarget as HTMLElement).setPointerCapture(pending.pointerId);
+      spawning = { typeId: pending.typeId, x: e.clientX, y: e.clientY, valid: computeValid(e.clientX, e.clientY) };
+      pending = null;
+    } else {
+      // Horizontal-dominant intent → let the browser scroll the palette; stop tracking this press.
+      pending = null;
+    }
   }
 
   function onItemPointerUp(e: PointerEvent) {
-    if (!spawning) return;
-    const rect = mapRect();
-    if (rect && spawning.valid) {
-      const world = camera.screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
-      game.addNode(spawning.typeId, world.x, world.y);
+    if (spawning) {
+      const r = mapRect();
+      if (r && spawning.valid) {
+        const world = camera.screenToWorld(e.clientX - r.left, e.clientY - r.top);
+        game.addNode(spawning.typeId, world.x, world.y);
+      }
+      spawning = null;
     }
+    pending = null;
+  }
+
+  function onItemPointerCancel() {
+    pending = null;
     spawning = null;
+  }
+
+  // Desktop: translate vertical wheel into horizontal scroll so a mouse can reach off-screen tiles.
+  function onWheel(e: WheelEvent) {
+    const el = e.currentTarget as HTMLElement;
+    if (el.scrollWidth <= el.clientWidth) return;
+    el.scrollLeft += e.deltaY;
+    e.preventDefault();
   }
 
   const spawningType = $derived(spawning ? getNodeType(spawning.typeId) : undefined);
 </script>
 
 <div class="palette hud-panel">
-  <div class="items">
+  <div class="items" onwheel={onWheel}>
     {#each NODE_TYPES as t (t.id)}
       <div
         class="item"
@@ -59,7 +96,7 @@
         onpointerdown={(e) => onItemPointerDown(e, t.id)}
         onpointermove={onItemPointerMove}
         onpointerup={onItemPointerUp}
-        onpointercancel={onItemPointerUp}
+        onpointercancel={onItemPointerCancel}
         role="button"
         tabindex="0"
         title="Drag onto the map to place a {t.label}"
@@ -82,10 +119,14 @@
 {/if}
 
 <style>
+  /* Centered with margin:auto (block flow, not flex) so the panel caps at the viewport and its items
+     scroll, instead of a flex item's min-content width pushing it off-screen when many nodes exist. */
   .palette {
+    width: max-content;
+    max-width: 100%;
+    margin: 0 auto;
     border-radius: 12px 12px 0 0;
     border-bottom: none;
-    max-width: 100%;
   }
   .items {
     display: flex;
@@ -94,7 +135,8 @@
     padding: 10px calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom))
       calc(16px + env(safe-area-inset-left));
     overflow-x: auto;
-    max-width: 100%;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
   }
   .item {
     display: flex;
@@ -104,7 +146,8 @@
     padding: 8px 14px;
     border-radius: 12px;
     cursor: grab;
-    touch-action: none;
+    /* pan-x: horizontal swipes scroll the palette; vertical drags are ours (pull a node onto the map). */
+    touch-action: pan-x;
     user-select: none;
     background: var(--panel-2);
     border: 1px solid var(--border);

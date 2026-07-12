@@ -29,14 +29,13 @@
     left: 0;
     right: 0;
   }
-  /* Centered without `transform`, deliberately: a transformed ancestor would become the containing
-     block for the palette's `position: fixed` drag-ghost and break its viewport-relative placement. */
+  /* Full-width block (the palette centers itself via margin:auto and caps at the viewport so it can
+     scroll horizontally). Deliberately no `transform` here: a transformed ancestor would become the
+     containing block for the palette's `position: fixed` drag-ghost and break its viewport placement. */
   .bottom {
     left: 0;
     right: 0;
     bottom: 0;
-    display: flex;
-    justify-content: center;
   }
   .right {
     top: 64px;
