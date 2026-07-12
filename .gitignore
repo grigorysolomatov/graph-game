@@ -4,6 +4,10 @@ dist-ssr
 *.local
 .claude/settings.local.json
 
+# Secrets / local env — never commit (this repo is public)
+.env
+.env.*
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

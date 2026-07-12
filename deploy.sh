@@ -9,7 +9,12 @@ set -euo pipefail
 
 REPO="grigorysolomatov/graph-game"
 SITE="https://grigorysolomatov.github.io/graph-game/"
-: "${GH_TOKEN:?Set GH_TOKEN to a GitHub token with 'repo' scope}"
+
+# Load GH_TOKEN from a gitignored .env next to this script, if present.
+ENV_FILE="$(dirname "$0")/.env"
+if [ -f "$ENV_FILE" ]; then set -a; . "$ENV_FILE"; set +a; fi
+
+: "${GH_TOKEN:?Set GH_TOKEN (in .env or the environment) to a GitHub token with 'repo' scope}"
 
 npm run build
 
