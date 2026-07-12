@@ -16,7 +16,7 @@
   // A press that hasn't yet been classified as "pull a node onto the map" vs. "scroll the palette".
   // We defer capturing the pointer until we know which, so a horizontal swipe can scroll natively.
   let pending: { typeId: string; pointerId: number; x: number; y: number } | null = null;
-  const DRAG_THRESHOLD = 6;
+  const DRAG_THRESHOLD = 8;
 
   function mapRect() {
     return document.getElementById('game-map')?.getBoundingClientRect();
@@ -47,14 +47,13 @@
     if (!pending || e.pointerId !== pending.pointerId) return;
     const dx = e.clientX - pending.x;
     const dy = e.clientY - pending.y;
-    if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
-    if (Math.abs(dy) >= Math.abs(dx)) {
-      // Vertical-dominant intent → pull a node out: capture the pointer and start dragging the ghost.
+    if (dy <= -DRAG_THRESHOLD && Math.abs(dy) > Math.abs(dx)) {
+      // Clear upward pull → drag a node onto the map (which sits above the palette). Capture and start.
       (e.currentTarget as HTMLElement).setPointerCapture(pending.pointerId);
       spawning = { typeId: pending.typeId, x: e.clientX, y: e.clientY, valid: computeValid(e.clientX, e.clientY) };
       pending = null;
-    } else {
-      // Horizontal-dominant intent → let the browser scroll the palette; stop tracking this press.
+    } else if (Math.abs(dx) >= DRAG_THRESHOLD || dy >= DRAG_THRESHOLD) {
+      // Sideways (or downward) intent → not a node pickup; let the browser scroll the palette instead.
       pending = null;
     }
   }
@@ -137,6 +136,23 @@
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: thin;
+    /* Fade tiles in/out at the left & right edges so a scrolled tile slides away smoothly instead of
+       hard-clipping against the panel border (which read as a node spilling out of the panel). */
+    --edge-fade: 16px;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 var(--edge-fade),
+      #000 calc(100% - var(--edge-fade)),
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 var(--edge-fade),
+      #000 calc(100% - var(--edge-fade)),
+      transparent
+    );
   }
   .item {
     display: flex;
