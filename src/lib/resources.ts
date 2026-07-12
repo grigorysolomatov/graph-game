@@ -1,12 +1,18 @@
 export interface ResourceTypeDef {
   id: string;
+  /** Text icon, used everywhere and required (it's the fallback, and the only option a `<select>` dropdown can show). */
   emoji: string;
   label: string;
+  /** Optional image (imported asset URL) shown instead of `emoji` in visual contexts — inventory badges,
+   *  travelers, and the info panel — for resources whose emoji reads poorly. The dropdown still uses `emoji`. */
+  image?: string;
   /** Whether this resource can be assigned to an edge and travel between nodes. Defaults to true; sun/tree never leave the node that made them. */
   transportable?: boolean;
   /** Whether a generic storage node can hold this resource. Defaults to true; labor is consumed on the spot and never stockpiled. */
   storable?: boolean;
 }
+
+import plankImage from '../../assets/plank.svg';
 
 export const RESOURCE_TYPES: ResourceTypeDef[] = [
   { id: 'food', emoji: '🥕', label: 'Food' },
@@ -14,7 +20,7 @@ export const RESOURCE_TYPES: ResourceTypeDef[] = [
   { id: 'labor', emoji: '💪', label: 'Labor', storable: false },
   { id: 'tree', emoji: '🌳', label: 'Tree', transportable: false },
   { id: 'wood', emoji: '🪵', label: 'Wood' },
-  { id: 'plank', emoji: '🟫', label: 'Plank' },
+  { id: 'plank', emoji: '🟫', label: 'Plank', image: plankImage },
   { id: 'furniture', emoji: '🪑', label: 'Furniture' },
   { id: 'fish', emoji: '🐟', label: 'Fish', transportable: false },
 ];

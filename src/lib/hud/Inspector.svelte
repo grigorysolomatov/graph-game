@@ -4,6 +4,7 @@
   import { getNodeType } from '../nodeTypes';
   import { getResource } from '../resources';
   import NodeIcon from '../NodeIcon.svelte';
+  import ResourceIcon from '../ResourceIcon.svelte';
 
   const selectedNode = $derived(game.getNode(game.selectedNodeId));
   const type = $derived(selectedNode ? getNodeType(selectedNode) : undefined);
@@ -17,10 +18,6 @@
   const capacityEntries = $derived(
     Object.entries(type?.capacities ?? {}).filter(([, max]) => Number.isFinite(max) && max > 0),
   );
-
-  function resourceEmoji(resourceId: string): string {
-    return getResource(resourceId)?.emoji ?? resourceId;
-  }
 
   // Slide in from the side on desktop (right panel) but up from the bottom on phones (bottom sheet),
   // matching where the panel is docked. Evaluated each time the inspector opens, so it follows the
@@ -46,7 +43,7 @@
       <div class="section-title">Starts with</div>
       <ul class="stat-list">
         {#each initialInventoryEntries as [resourceId, amount] (resourceId)}
-          <li>{resourceEmoji(resourceId)} {amount}</li>
+          <li><ResourceIcon resource={getResource(resourceId)} /> {amount}</li>
         {/each}
       </ul>
     {/if}
@@ -74,9 +71,9 @@
       <ul class="stat-list">
         {#each type.conversions as conversion, i (i)}
           <li>
-            {conversion.inputs.map(resourceEmoji).join(' + ')}
+            {#each conversion.inputs as id, j (j)}{#if j > 0}{' + '}{/if}<ResourceIcon resource={getResource(id)} />{/each}
             →
-            {conversion.outputs.map(resourceEmoji).join(' + ')}
+            {#each conversion.outputs as id, j (j)}{#if j > 0}{' + '}{/if}<ResourceIcon resource={getResource(id)} />{/each}
           </li>
         {/each}
       </ul>
@@ -91,7 +88,7 @@
       <div class="section-title">Capacity</div>
       <ul class="stat-list">
         {#each capacityEntries as [resourceId, max] (resourceId)}
-          <li>{resourceEmoji(resourceId)} {max}</li>
+          <li><ResourceIcon resource={getResource(resourceId)} /> {max}</li>
         {/each}
       </ul>
     {/if}

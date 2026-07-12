@@ -3,6 +3,7 @@
   import { getEdgeGeometry, EDGE_OFFSET } from '../types';
   import type { ResourceTraveler } from '../types';
   import { getResource } from '../resources';
+  import ResourceIcon from '../ResourceIcon.svelte';
 
   let { traveler }: { traveler: ResourceTraveler } = $props();
 
@@ -25,7 +26,7 @@
 
 {#if position && resourceDef}
   <div class="traveler" style="left:{position.x}px; top:{position.y}px;">
-    {resourceDef.emoji}
+    <ResourceIcon resource={resourceDef} />
   </div>
 {/if}
 

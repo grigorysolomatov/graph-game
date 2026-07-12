@@ -6,6 +6,7 @@
   import { getNodeType } from '../nodeTypes';
   import { getResource } from '../resources';
   import NodeIcon from '../NodeIcon.svelte';
+  import ResourceIcon from '../ResourceIcon.svelte';
 
   let { node }: { node: GraphNode } = $props();
 
@@ -76,7 +77,7 @@
     {#each inventoryEntries as [resourceId, count] (resourceId)}
       {@const resourceDef = getResource(resourceId)}
       {#if resourceDef}
-        <span class="inv-badge">{Math.trunc(count)}{resourceDef.emoji}</span>
+        <span class="inv-badge">{Math.trunc(count)}<ResourceIcon resource={resourceDef} /></span>
       {/if}
     {/each}
   </div>
