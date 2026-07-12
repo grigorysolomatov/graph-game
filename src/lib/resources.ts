@@ -14,6 +14,7 @@ export const RESOURCE_TYPES: ResourceTypeDef[] = [
   { id: 'labor', emoji: '💪', label: 'Labor', storable: false },
   { id: 'tree', emoji: '🌳', label: 'Tree', transportable: false },
   { id: 'wood', emoji: '🪵', label: 'Wood' },
+  { id: 'plank', emoji: '🟫', label: 'Plank' },
   { id: 'fish', emoji: '🐟', label: 'Fish', transportable: false },
 ];
 
