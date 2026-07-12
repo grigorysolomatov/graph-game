@@ -5,6 +5,7 @@ import { houseType } from './house';
 import { lakeType } from './lake';
 import { sawmillType } from './sawmill';
 import { storageType } from './storage';
+import { workshopType } from './workshop';
 
 /**
  * Every placeable node kind, in the order the node-selection menu shows them.
@@ -17,6 +18,7 @@ export const NODE_TYPES: NodeTypeDef[] = [
   forestType,
   lakeType,
   sawmillType,
+  workshopType,
   storageType,
 ];
 
